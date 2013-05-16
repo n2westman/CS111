@@ -612,8 +612,8 @@ allocate_block(void)
 
 	// NEW STUFF:
 
-	int i, j;
-	for (i = OSPFS_FREEMAP_BLK)
+	//int i, j;
+	//for (i = OSPFS_FREEMAP_BLK)
 
 	return 0;
 }
