@@ -448,7 +448,7 @@ ospfs_dir_readdir(struct file *filp, void *dirent, filldir_t filldir)
 	// actual entries
 	while (r == 0 && ok_so_far >= 0 && f_pos >= 2) {
 		ospfs_direntry_t *od
-			= ospfs_inode_data(dir_oi, (f_pos-2)*OSPFS_DIRENTRY_SIZE);
+			= ospfs_inode_data(dir_oi, (f_pos-2)*OSPFS_DIRENTRY_SIZE;
 		ospfs_inode_t *entry_oi;
 		uint32_t file_type = 0;
 		
@@ -568,7 +568,17 @@ ospfs_unlink(struct inode *dirino, struct dentry *dentry)
 static uint32_t
 allocate_block(void)
 {
-	/* EXERCISE: Your code here */
+	int i = 0;
+	void* bitmap = ospfs_block(OSPFS_FREEMAP_BLK);
+	for(; i < ospfs_super->os_nblocks; i++)
+	{
+		if(bitvector_test(bitmap, i)) //1 means the block is free
+		{ //Clears the block, meaning that it's allocated.
+			bitvector_clear(bitmap, i);
+			return i;
+		}
+	}
+	//We didn't find it, so return 0. Boooooooo.
 	return 0;
 }
 
@@ -587,7 +597,14 @@ allocate_block(void)
 static void
 free_block(uint32_t blockno)
 {
-	/* EXERCISE: Your code here */
+	//If block is reserved, don't do anything. Defensive programming!
+	if(ospfs_super->os_firstinob + ospfs_super->os_ninodes/OSPFS_BLKINODES > blockno)
+		return;
+	//If the blockno is too big (bigger than my #blocks) do nothing
+	if(blockno >= ospfs_super->os_nblocks)
+		return;
+	//Otherwise, set it! (mark as free)
+	bitvector_set(ospfs_block(OSPFS_FREEMAP_BLK), blockno);
 }
 
 
@@ -879,7 +896,7 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 
 		data = ospfs_block(blockno);
 
-		//Added 9 Lines:
+		//Added 10 Lines:
 		//Calculates how many bytes we're going to read.
 		n = OSPFS_BLKSIZE - (*f_pos)%OSPFS_BLKSIZE;
 		n = min(n, (count - amount));
