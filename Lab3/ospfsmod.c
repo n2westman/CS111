@@ -448,7 +448,7 @@ ospfs_dir_readdir(struct file *filp, void *dirent, filldir_t filldir)
 	// actual entries
 	while (r == 0 && ok_so_far >= 0 && f_pos >= 2) {
 		ospfs_direntry_t *od
-			= ospfs_inode_data(dir_oi, (f_pos-2)*OSPFS_DIRENTRY_SIZE;
+			= ospfs_inode_data(dir_oi, (f_pos-2)*OSPFS_DIRENTRY_SIZE);
 		ospfs_inode_t *entry_oi;
 		uint32_t file_type = 0;
 		
@@ -879,7 +879,7 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 
 		data = ospfs_block(blockno);
 
-		//Added 10 Lines:
+		//Added 9 Lines:
 		//Calculates how many bytes we're going to read.
 		n = OSPFS_BLKSIZE - (*f_pos)%OSPFS_BLKSIZE;
 		n = min(n, (count - amount));
