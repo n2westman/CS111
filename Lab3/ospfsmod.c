@@ -471,8 +471,8 @@ ospfs_dir_readdir(struct file *filp, void *dirent, filldir_t filldir)
 		}
 		
 		//Note that there isn't a default. It's handled in filldir.
-		entry_oi = osfps_inode(od->od_ino);
-		switch(entry_i->oi_ftype)
+		entry_oi = ospfs_inode(od->od_ino);
+		switch(entry_oi->oi_ftype)
 		{
 		case OSPFS_FTYPE_REG:
 			file_type = DT_REG;
@@ -481,7 +481,7 @@ ospfs_dir_readdir(struct file *filp, void *dirent, filldir_t filldir)
 			file_type = DT_DIR;
 			break;
 		case OSPFS_FTYPE_SYMLINK:
-			file_type = DT_LINK;
+			file_type = DT_LNK;
 			break;
 		}
 		
