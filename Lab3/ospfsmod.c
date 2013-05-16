@@ -950,7 +950,7 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 
 		// Current position within the block
 		f_offset 	= ospfs_inode_data(oi, *f_pos);
-		blk_offset  = f_offset - data;
+		blk_offset  = f_offset - (uint32_t)data;
 
 		// Calculate data remaining
 		bytes_to_read_tot = count - amount;
