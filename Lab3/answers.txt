@@ -11,14 +11,14 @@
 # information you'd like us to know, please add it at the end of the file.
 
 # Partner 1
-Name: 
-Student ID: 
-Email: 
+Name: Nickolas Westman
+Student ID: 903996152
+Email: n2westman@gmail.com
 
 # Partner 2 (if you're working in a team)
-Name: 
-Student ID: 
-Email: 
+Name: Alex Sanciangco
+Student ID: 704050064
+Email: a.sanciangco@gmail.com
 
 # Extra credit problems
 #Extra credit problem: none
