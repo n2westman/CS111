@@ -971,6 +971,8 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 			goto done;
 		}
 
+		eprintk("Loopin. Read n = %i bytes.\n", (int)n );
+
 		buffer += n;
 		amount += n;
 		*f_pos += n;
