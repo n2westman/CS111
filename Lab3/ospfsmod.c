@@ -904,6 +904,7 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 	int retval = 0;
 	size_t amount = 0;
 
+	eprintk("count = %i \n", (int) count);
 
 	// Make sure we don't read past the end of the file!
 	// Change 'count' so we never read past the end of the file.
@@ -914,8 +915,8 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 
 	// If the amount of data they request is greater than the size
 	// of the inode, replace count with the size of the inode.
-	if (*f_pos + count > oi + oi->oi_size)
-		count = oi->oi_size - *f_pos;
+	//if (*f_pos + count > oi + oi->oi_size)
+	//	count = oi->oi_size - *f_pos;
 
 	// Copy the data to user block by block
 	while (amount < count && retval >= 0) {
@@ -958,11 +959,17 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 
 		// can we read the remaining all at once?
 		if (bytes_to_read_tot <= bytes_to_read_blk)
+		{
 			// If so, read it all
+			eprintk("Setting n to bytes_read_tot. \n");
 			n = bytes_to_read_tot;
+		}
 		else
+		{
 			// if not, read the rest of the block.
+			eprintk("Setting n to bytes_read_blk. \n");
 			n = bytes_to_read_blk;
+		}
 
 		// Copy data, throw error if unsuccessful
 		if (copy_to_user(buffer, data + blk_offset, n))
