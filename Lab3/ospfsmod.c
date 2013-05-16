@@ -609,6 +609,12 @@ static uint32_t
 allocate_block(void)
 {
 	/* EXERCISE: Your code here */
+
+	// NEW STUFF:
+
+	int i, j;
+	for (i = OSPFS_FREEMAP_BLK)
+
 	return 0;
 }
 
@@ -897,7 +903,7 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 	ospfs_inode_t *oi = ospfs_inode(filp->f_dentry->d_inode->i_ino);
 	int retval = 0;
 	size_t amount = 0;
-	uint32_t f_offset, data_remaining;
+
 
 	// Make sure we don't read past the end of the file!
 	// Change 'count' so we never read past the end of the file.
@@ -915,6 +921,11 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 	while (amount < count && retval >= 0) {
 		uint32_t blockno = ospfs_inode_blockno(oi, *f_pos);
 		uint32_t n;
+		uint32_t f_offset;
+		uint32_t blk_offset;
+		uint32_t bytes_to_read_tot;
+		uint32_t bytes_to_read_blk;
+
 		char *data;
 
 		// ospfs_inode_blockno returns 0 on error
@@ -938,20 +949,23 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 		// NEW STUFF:
 
 		// Current position within the block
-		f_offset = *f_pos % OSPFS_BLKSIZE;
-		// Calculate data remaining
-		data_remaining = count - amount;
+		f_offset 	= ospfs_inode_data(oi, *f_pos);
+		blk_offset  = f_offset - data;
 
-		// Calculate amount of data to read
-		if (f_offset + data_remaining > OSPFS_BLKSIZE)
-			// read the rest of the block if there's space
-			n = OSPFS_BLKSIZE - f_offset;
+		// Calculate data remaining
+		bytes_to_read_tot = count - amount;
+		bytes_to_read_blk = OSPFS_BLKSIZE - blk_offset;
+
+		// can we read the remaining all at once?
+		if (bytes_to_read_tot <= bytes_to_read_blk)
+			// If so, read it all
+			n = bytes_to_read_tot;
 		else
-			// otherwise read it all
-			n = data_remaining;
+			// if not, read the rest of the block.
+			n = bytes_to_read_blk;
 
 		// Copy data, throw error if unsuccessful
-		if (copy_to_user(buffer, data, n))
+		if (copy_to_user(buffer, data + blk_offset, n))
 		{
 			retval = -EFAULT;
 			goto done;
