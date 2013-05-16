@@ -443,39 +443,55 @@ ospfs_dir_readdir(struct file *filp, void *dirent, filldir_t filldir)
 			f_pos++;
 	}
 
+	// I don't like this loop. The only thing we increment is f_pos.
+	// I really don't like this loop.
 	// actual entries
 	while (r == 0 && ok_so_far >= 0 && f_pos >= 2) {
-		ospfs_direntry_t *od;
+		ospfs_direntry_t *od
+			= ospfs_inode_data(dir_oi, (f_pos-2)*OSPFS_DIRENTRY_SIZE;
 		ospfs_inode_t *entry_oi;
-
-		/* If at the end of the directory, set 'r' to 1 and exit
-		 * the loop.  For now we do this all the time.
-		 *
-		 * EXERCISE: Your code here */
-		r = 1;		/* Fix me! */
-		break;		/* Fix me! */
-
-		/* Get a pointer to the next entry (od) in the directory.
-		 * The file system interprets the contents of a
-		 * directory-file as a sequence of ospfs_direntry structures.
-		 * You will find 'f_pos' and 'ospfs_inode_data' useful.
-		 *
-		 * Then use the fields of that file to fill in the directory
-		 * entry.  To figure out whether a file is a regular file or
-		 * another directory, use 'ospfs_inode' to get the directory
-		 * entry's corresponding inode, and check out its 'oi_ftype'
-		 * member.
-		 *
-		 * Make sure you ignore blank directory entries!  (Which have
-		 * an inode number of 0.)
-		 *
-		 * If the current entry is successfully read (the call to
-		 * filldir returns >= 0), or the current entry is skipped,
-		 * your function should advance f_pos by the proper amount to
-		 * advance to the next directory entry.
-		 */
-
-		/* EXERCISE: Your code here */
+		uint32_t file_type = 0;
+		
+		//Check to see if we've reached the end of the directory
+		if((f_pos-2)*OSPFS_DIRENTRY_SIZE >= dir_oi->oi_size)
+		{
+			r = 1;	
+			break;	
+		}
+		
+		//If we hit here, we have to add our next object.
+		//If it's null, we ignore it. This is really inefficient.
+		//Theoretically, we should take the last direntry, put it
+		//in place of each deleted direntry.
+		//Thus, we can use null to actually terminate our directory!
+		if(!od->od_ino)
+		{
+			f_pos++;
+			continue;
+		}
+		
+		//Note that there isn't a default. It's handled in filldir.
+		entry_oi = osfps_inode(od->od_ino);
+		switch(entry_i->oi_ftype)
+		{
+		case OSPFS_FTYPE_REG:
+			file_type = DT_REG;
+			break;
+		case OSPFS_FTYPE_DIR:
+			file_type = DT_DIR;
+			break;
+		case OSPFS_FTYPE_SYMLINK:
+			file_type = DT_LINK;
+			break;
+		}
+		
+		//Try filling, set ok_so_far
+		ok_so_far = filldir(dirent, od->od_name, strlen(od->od_name),
+						f_pos, od->od_ino, file_type);
+		if(ok_so_far < 0)
+			r = -1;
+		else
+			f_pos++;
 	}
 
 	// Save the file position and return!
@@ -843,30 +859,37 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 	size_t amount = 0;
 
 	// Make sure we don't read past the end of the file!
-	// Change 'count' so we never read past the end of the file.
-	/* EXERCISE: Your code here */
+	// Changes 'count' so we never read past the end of the file.
+	// Added 1 Line:
+	count = min(count, (oi->oi_size - *f_pos));
 
 	// Copy the data to user block by block
-	while (amount < count && retval >= 0) {
+	while (amount < count && retval >= 0) 
+	{
 		uint32_t blockno = ospfs_inode_blockno(oi, *f_pos);
 		uint32_t n;
 		char *data;
 
 		// ospfs_inode_blockno returns 0 on error
-		if (blockno == 0) {
+		if (blockno == 0) 
+		{
 			retval = -EIO;
 			goto done;
 		}
 
 		data = ospfs_block(blockno);
 
-		// Figure out how much data is left in this block to read.
-		// Copy data into user space. Return -EFAULT if unable to write
-		// into user space.
-		// Use variable 'n' to track number of bytes moved.
-		/* EXERCISE: Your code here */
-		retval = -EIO; // Replace these lines
-		goto done;
+		//Added 10 Lines:
+		//Calculates how many bytes we're going to read.
+		n = OSPFS_BLKSIZE - (*f_pos)%OSPFS_BLKSIZE;
+		n = min(n, (count - amount));
+		
+		//Copies the buffer to the user!
+		if(0 > copy_to_user(buffer, data, n))
+		{
+			retval = -EFAULT;
+			goto done;
+		}
 
 		buffer += n;
 		amount += n;
