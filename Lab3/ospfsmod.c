@@ -453,7 +453,7 @@ ospfs_dir_readdir(struct file *filp, void *dirent, filldir_t filldir)
 		uint32_t file_type = 0;
 		
 		//Check to see if we've reached the end of the directory
-		if((f_pos-2)*OSPFS_DIRENTRY_SIZE >= dir_oi->oi_size))
+		if((f_pos-2)*OSPFS_DIRENTRY_SIZE >= dir_oi->oi_size)
 		{
 			r = 1;	
 			break;	
@@ -756,7 +756,7 @@ add_block(ospfs_inode_t *oi)
 		
 		allocated[0] = ospfs_block(indirect2);
 		memset(allocated[0], 0, OSPFS_BLKSIZE);
-		oi->indirect2 = indirect2;
+		oi->oi_indirect2 = indirect2;
 	}
 	//Let's see if we have to make an indirect block.
 	if(indir_index(n) != indir_index(n-1))
@@ -770,7 +770,7 @@ add_block(ospfs_inode_t *oi)
 		}
 		allocated[1] = ospfs_block(indirect);
 		memset(allocated[1], 0, OSPFS_BLKSIZE);
-		oi->indirect = indirect;
+		oi->oi_indirect = indirect;
 	}
 	
 	if(!(direct = allocate_block()))
@@ -838,7 +838,7 @@ remove_block(ospfs_inode_t *oi)
 	
 	n--; //Now n is the block number we want to remove, zero-indexed.
 	uint32_t d  = direct_index(n); //Direct Index
-	uint32_t i  = indir_index(n);	//Indirect Block Index
+	uint32_t i1 = indir_index(n);	//Indirect Block Index
 	uint32_t i2 = indir2_index(n); //Indirect2 Block Index
 	
 	if(d == -1) //Just in case. Pretty sure it's redundant.
@@ -847,7 +847,7 @@ remove_block(ospfs_inode_t *oi)
 	if(i2 == 0) //1, 2 or 3 removes
 	{
 		uint32_t* i2_block = ospfs_block(oi->oi_indirect2);
-		uint32_t* i1_block = ospfs_block(i2_block[i]);
+		uint32_t* i1_block = ospfs_block(i2_block[i1]);
 		
 		free_block(i1_block[d]);
 		i1_block[d] = 0;
@@ -863,7 +863,7 @@ remove_block(ospfs_inode_t *oi)
 			oi->oi_indirect2 = 0;
 		}
 	}
-	else if(i  == 0) //1 or 2 removes
+	else if(i1 == 0) //1 or 2 removes
 	{
 		uint32_t* i_block = ospfs_block(oi->oi_indirect);
 		
