@@ -731,7 +731,7 @@ direct_index(uint32_t b)
 static int
 add_block(ospfs_inode_t *oi)
 {
-	eprintk("Allocating Block\n");
+//	eprintk("Allocating Block\n");
 
 	// current number of blocks in file
 	uint32_t n = ospfs_size2nblocks(oi->oi_size);
@@ -1031,9 +1031,11 @@ ospfs_read(struct file *filp, char __user *buffer, size_t count, loff_t *f_pos)
 		}
 
 		data = ospfs_block(blockno);
-
+		
 		//Added 10 Lines:
 		//Calculates how many bytes we're going to read.
+		data += *f_pos % OSPFS_BLKSIZE;
+		
 		n = OSPFS_BLKSIZE - (*f_pos)%OSPFS_BLKSIZE;
 		n = min(n, (count - amount));
 		
@@ -1078,13 +1080,18 @@ ospfs_write(struct file *filp, const char __user *buffer, size_t count, loff_t *
 	int retval = 0;
 	size_t amount = 0;
 
-	// Support files opened with the O_APPEND flag.  To detect O_APPEND,
-	// use struct file's f_flags field and the O_APPEND bit.
-	/* EXERCISE: Your code here */
+	// Support files opened with the O_APPEND flag.
+	if(filp->f_flags & O_APPEND)
+		*f_pos = oi->oi_size; 
 
 	// If the user is writing past the end of the file, change the file's
-	// size to accomodate the request.  (Use change_size().)
-	/* EXERCISE: Your code here */
+	// size to accomodate the request. 
+	if((count + *f_pos > oi->oi_size))
+	{
+		retval = change_size(oi, count + *f_pos);
+		if(retval < 0)
+			goto done;
+	}
 
 	// Copy data block by block
 	while (amount < count && retval >= 0) {
@@ -1103,9 +1110,18 @@ ospfs_write(struct file *filp, const char __user *buffer, size_t count, loff_t *
 		// Copy data from user space. Return -EFAULT if unable to read
 		// read user space.
 		// Keep track of the number of bytes moved in 'n'.
-		/* EXERCISE: Your code here */
-		retval = -EIO; // Replace these lines
-		goto done;
+				
+		data += (*f_pos) % OSPFS_BLKSIZE;
+		
+		n = OSPFS_BLKSIZE - ((*f_pos) % OSPFS_BLKSIZE);
+		n = min(n, (count - amount));
+		n = min(n, (oi->oi_size - (*f_pos)));
+		
+		if(copy_from_user(data, buffer, n) != 0)
+		{
+			retval = -EFAULT;
+			goto done;
+		}
 
 		buffer += n;
 		amount += n;
