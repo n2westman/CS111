@@ -1209,9 +1209,9 @@ create_blank_direntry(ospfs_inode_t *dir_oi)
 	entry = dir_oi->oi_size = OSPFS_DIRENTRY_SIZE;
 	if((r = change_size(dir_oi, entry)) < 0)
 		return ERR_PTR(r);
-	dir = ospfs_inode_data(dir_oi, dir_oi->oi_size - OSPFS_DIRENTRY_SIZE);
-	dir->od_ino = 0;
-	dir->od_name[0] = 0;
+	toRet = ospfs_inode_data(dir_oi, dir_oi->oi_size - OSPFS_DIRENTRY_SIZE);
+	toRet->od_ino = 0;
+	toRet->od_name[0] = 0;
 	
 	return toRet; // Replace this line
 }
