@@ -1208,23 +1208,20 @@ static ospfs_direntry_t *
 create_blank_direntry(ospfs_inode_t *dir_oi)
 {
 	ospfs_direntry_t* toRet;
-	uint32_t entry;
+	uint32_t offset;
 	int r = 0; //Return Code
 	
-	for(entry = 0; entry < dir_oi->oi_size; entry += OSPFS_DIRENTRY_SIZE)
+	for(offset = 0; offset < dir_oi->oi_size; offset += OSPFS_DIRENTRY_SIZE)
 	{
-		toRet = (ospfs_direntry_t*) ospfs_inode_data(dir_oi, entry);
+		toRet = (ospfs_direntry_t*) ospfs_inode_data(dir_oi, offset);
 		if(toRet->od_ino == 0)
 			return toRet;
 	}
 
-	entry = dir_oi->oi_size = OSPFS_DIRENTRY_SIZE;
-	if((r = change_size(dir_oi, entry)) < 0)
-		return ERR_PTR(r);
-	toRet = ospfs_inode_data(dir_oi, dir_oi->oi_size - OSPFS_DIRENTRY_SIZE); //Sets the pointer
-	toRet->od_ino = 0;
-	toRet->od_name[0] = 0;
-	
+	if (change_size(dir_oi, (dir_oi->oi_size + OSPFS_BLKSIZE)) != 0)
+		return ERR_PTR(-ENOSPC);
+
+	toRet = ospfs_inode_data(dir_oi,offset);
 	return toRet;
 }
 
