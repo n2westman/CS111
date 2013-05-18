@@ -1302,7 +1302,7 @@ ospfs_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidat
 
 	if(dentry->d_name.len > OSPFS_MAXNAMELEN)
 		return -ENAMETOOLONG;
-	if(find_direntry(dir_oi, dentry->d_name.name, dentry->d_name.len)
+	if(find_direntry(dir_oi, dentry->d_name.name, dentry->d_name.len))
 		return -EEXIST;
 
 	ospfs_direntry_t *empty = create_blank_direntry(dir_oi);
@@ -1311,7 +1311,7 @@ ospfs_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidat
 	
 	//Inode 0 is reserved.
 	ospfs_inode_t *spare_inode_ptr = 0;
-	for(entry_ino = 1; entry_ino < ospfs_super->os_inodes; entry_ino++)
+	for(entry_ino = 1; entry_ino < ospfs_super->os_ninodes; entry_ino++)
 	{
 		spare_inode_ptr = ospfs_inode(entry_ino);
 		if((spare_inode_ptr != 0) && (spare_inode_ptr->oi_nlink == 0))
@@ -1324,13 +1324,13 @@ ospfs_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidat
 		return -ENOSPC;
 	
 	empty->od_ino = entry_ino;
-	mempcy(empty->od_name, dentry->d_name.name, dentry->d_name.len);
+	memcpy(empty->od_name, dentry->d_name.name, dentry->d_name.len);
 	empty->od_name[dentry->d_name.len] = '\0'; //Null Term
 	
 	spare_inode_ptr->oi_size = 0;
 	spare_inode_ptr->oi_mode = mode;
 	spare_inode_ptr->oi_ftype = OSPFS_FTYPE_REG;
-	memset(empty_inode->oidirect, 0, 
+	memset(spare_inode_ptr->oi_direct, 0, 
 		sizeof(spare_inode_ptr->oi_direct[0])*OSPFS_NDIRECT);
 	spare_inode_ptr->oi_indirect = 
 		spare_inode_ptr->oi_indirect2 = 0;
