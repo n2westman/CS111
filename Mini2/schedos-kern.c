@@ -73,6 +73,8 @@ start(void)
 	for (i = 0; i < NPROCS; i++) {
 		proc_array[i].p_pid = i;
 		proc_array[i].p_state = P_EMPTY;
+		// Initialize priority
+		proc_array[i].p_priority = i%2 + 1;
 	}
 	
 	//The two loops differ upon instantiation, the second loop never looks at i == 0
@@ -86,8 +88,7 @@ start(void)
 		// Initialize the process descriptor
 		special_registers_init(proc);
 		
-		// Initialize priority
-		proc->p_priority = i%2 + 1;
+
 
 		// Set ESP
 		proc->p_registers.reg_esp = stack_ptr;
@@ -195,7 +196,7 @@ void
 schedule(void)
 {
 	pid_t pid = current->p_pid;
-	uint32_t priority = 0;
+	uint32_t priority = current->p_priority;
 	
 	if (scheduling_algorithm == 0)
 		while (1) {
@@ -221,17 +222,16 @@ schedule(void)
 		
 	else if(scheduling_algorithm == 2)
 		while(1) {
-			int next = 1;
-			for(pid = 1; pid < NPROCS; pid++) {
-				if (proc_array[pid].p_state == P_RUNNABLE &&
-					proc_array[pid].p_priority == priority)
+			int i;
+			for(i = 1; i < NPROCS; i++) {
+				if (proc_array[(pid+i)%NPROCS].p_state == P_RUNNABLE &&
+					proc_array[(pid+i)%NPROCS].p_priority == priority)
 				{
 					run(&proc_array[pid]);
-					next = 0;
 				}
 			}
 			//We have NPROCS unique priorities
-			priority = (priority + next) % NPROCS;
+			priority = (priority + 1) % NPROCS;
 		}
 	// If we get here, we are running an unknown scheduling algorithm.
 	cursorpos = console_printf(cursorpos, 0x100, "\nUnknown scheduling algorithm %d\n", scheduling_algorithm);
