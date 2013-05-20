@@ -16,10 +16,27 @@ It goes through each process in order, using a modulo to wrap around.
 Response to Exercise 3:
 
 Average turnaround time for scheduling_algorithm 0:
+To turn around, we need to wait for 319 characters from each to print
+1: 319 * 4 + 1 
+2: 319 * 4 + 2 
+3: 319 * 4 + 3 
+4: 319 * 4 + 4 
+
+Average = Total Time / #Procs = (319 * 4 * 4 + 1+2+3+4) / 4 = 1278.5 ms
+
 Average turnaround time for scheduling_algorithm 1:
+1: 320
+2: 320 * 2
+3: 320 * 3
+4: 320 * 4
+
+Average = 320 * (1+2+3+4) / 4 = 800 ms
 
 Average wait time for scheduling_algorithm 0:
+(0 + 1 + 2 + 3) / 4 = 1.5 ms
+
 Average wait time for scheduling_algorithm 1:
+(0 + 320 + 640 + 960) / 4 = 480 ms
 
 
 Exercise 4:
