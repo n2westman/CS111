@@ -1,17 +1,17 @@
-Name:
-UCLA ID:
+Name: Nickolas Westman
+UCLA ID: 903996152
 
-Collaborators:
+Collaborators: None
 
 -------------------------------------------------------------------------------
 
 Response to Exercise 1:
 
 The name of the scheduling algorithm is:
-
+First In, First Out. 
+It goes through each process in order, using a modulo to wrap around.
 
 (Exercise 2 is a coding exercise)
-
 
 Response to Exercise 3:
 
