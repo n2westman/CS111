@@ -74,6 +74,9 @@ start(void)
 		proc_array[i].p_pid = i;
 		proc_array[i].p_state = P_EMPTY;
 	}
+	
+	//The two loops differ upon instantiation, the second loop never looks at i == 0
+	//Thus this program never uses proc_array[0].
 
 	// Set up process descriptors (the proc_array[])
 	for (i = 1; i < NPROCS; i++) {
@@ -200,7 +203,17 @@ schedule(void)
 			if (proc_array[pid].p_state == P_RUNNABLE)
 				run(&proc_array[pid]);
 		}
-
+	
+	if(scheduling_algorithm == 1)
+		while(1) {
+			for(pid = 1; pid < NPROCS; pid++) {
+				if (proc_array[pid].p_state == P_RUNNABLE)
+				{
+					run(&proc_array[pid]);
+					break;
+				}
+			}
+		}
 	// If we get here, we are running an unknown scheduling algorithm.
 	cursorpos = console_printf(cursorpos, 0x100, "\nUnknown scheduling algorithm %d\n", scheduling_algorithm);
 	while (1)
