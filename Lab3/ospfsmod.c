@@ -537,6 +537,8 @@ ospfs_unlink(struct inode *dirino, struct dentry *dentry)
 
 	od->od_ino = 0;
 	oi->oi_nlink--;
+	if (oi->oi_nlink == 0 && oi->oi_ftype != OSPFS_FTYPE_SYMLINK)
+		return change_size(oi, 0);
 	return 0;
 }
 
@@ -1372,11 +1374,63 @@ static int
 ospfs_symlink(struct inode *dir, struct dentry *dentry, const char *symname)
 {
 	ospfs_inode_t *dir_oi = ospfs_inode(dir->i_ino);
-	uint32_t entry_ino = 0;
+	ospfs_inode_t *this_directory  = ospfs_inode(dir->i_ino);
+	ospfs_direntry_t *new_direntry;
+	ospfs_symlink_inode_t *entry_oi;
+	uint32_t entry_ino;
 
 	/* EXERCISE: Your code here. */
-	return -EINVAL;
+	//return -EINVAL;
 
+
+	////ERROR CHECKING////
+	
+	// Sanity Check
+	if (!dir || !dentry)
+		return -EIO;
+
+	// Name(s) too long
+	if (dentry->d_name.len > OSPFS_MAXNAMELEN || strlen(symname) > OSPFS_MAXSYMLINKLEN)
+		return -ENAMETOOLONG;
+		
+	// Directory entry with same name exists
+	if (find_direntry(this_directory, dentry->d_name.name, dentry->d_name.len))
+		return -EEXIST;
+		
+	///////////////////////
+	
+	
+	
+	// Find free inode
+	for (entry_ino = 0; entry_ino < ospfs_super->os_ninodes; entry_ino++)
+	{
+		entry_oi = ospfs_inode(entry_ino);
+		if (!entry_oi->oi_nlink)
+			break;
+	}
+
+	// No inodes for you!
+	if (entry_ino == ospfs_super->os_ninodes)
+		return -ENOSPC;
+		
+	// Find free directory entry (if it exists)
+	new_direntry = create_blank_direntry(this_directory);
+	if (IS_ERR(new_direntry))
+		return PTR_ERR(new_direntry);
+	
+	
+	// Will reach this point if there's a free directory entry and inode
+	// INODE
+	entry_oi->oi_size = strlen(symname);
+	entry_oi->oi_ftype = OSPFS_FTYPE_SYMLINK;
+	entry_oi->oi_nlink = 1;
+	strcpy(entry_oi->oi_symlink, symname);
+	
+	// DIRECTORY ENTRY
+	new_direntry->od_ino = entry_ino;
+	memcpy(new_direntry->od_name, dentry->d_name.name, dentry->d_name.len);
+	new_direntry->od_name[dentry->d_name.len] = '\0';
+	
 	/* Execute this code after your function has successfully created the
 	   file.  Set entry_ino to the created file's inode number before
 	   getting here. */
@@ -1409,6 +1463,33 @@ ospfs_follow_link(struct dentry *dentry, struct nameidata *nd)
 	ospfs_symlink_inode_t *oi =
 		(ospfs_symlink_inode_t *) ospfs_inode(dentry->d_inode->i_ino);
 	// Exercise: Your code here.
+
+	if (strncmp(oi->oi_symlink, "root?", 5) == 0)
+	{
+		// Find ':', replace with '\0'. Thank you, hint!
+		int i;
+		for (i = 0; i < strlen(oi->oi_symlink); i++)
+		{
+			if (oi->oi_symlink[i] == ':')
+			{
+				oi->oi_symlink[i] = '\0';
+				break;
+			}
+		}
+		
+		// Root user
+		if (current->uid == 0)
+		{
+			nd_set_link(nd, oi->oi_symlink + 5);
+			return (void*) 0;
+		} // Not root user
+		else
+		{
+			nd_set_link(nd, oi->oi_symlink + i + 1);
+			return (void*) 0;
+		}
+		
+	}
 
 	nd_set_link(nd, oi->oi_symlink);
 	return (void *) 0;
