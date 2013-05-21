@@ -222,10 +222,10 @@ schedule(void)
 		
 	else if(scheduling_algorithm == 2)
 		while(1) {
-			int i;
-			for(i = 1; i < NPROCS; i++) {
-				if (proc_array[(pid+i)%NPROCS].p_state == P_RUNNABLE &&
-					proc_array[(pid+i)%NPROCS].p_priority == priority)
+			while((++pid%NPROCS) != current->pid)
+			{
+				if (proc_array[pid].p_state == P_RUNNABLE &&
+					proc_array[pid].p_priority == priority)
 				{
 					run(&proc_array[pid]);
 				}
