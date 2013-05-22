@@ -342,7 +342,7 @@ schedule(void)
   10013e:	83 b8 78 70 10 00 01 	cmpl   $0x1,0x107078(%eax)
   100145:	75 08                	jne    10014f <schedule+0x92>
   100147:	39 b0 28 70 10 00    	cmp    %esi,0x107028(%eax)
-  10014d:	74 5a                	je     1001a9 <schedule+0xec>
+  10014d:	76 5a                	jbe    1001a9 <schedule+0xec>
 			}
 		}
 		

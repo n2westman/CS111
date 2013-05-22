@@ -43,15 +43,23 @@ Exercise 4:
 
 Did you complete Exercise 4A, Exercise 4B, or both for extra credit?
 
+Both, 4B is more complete. 4A works, there's currently a minor bug where it will "step down" priorities, meaning that if the priority is inverse to the thread number, it will sequentially step down to the next highest priority, rather than the highest priority possible.
+
 
 Exercise 5:
 
+When it's trying to print the 16th character, there's an interrupt that happens there. Process 4 should have control of the print there, but the scheduler yanks control away and instead Process 1 overwrites the same buffer that process 4 should be using.
+
+tl;dr It happens in process 4 on its 5th iteration.
 
 (Exercise 6 is a coding exercise)
 
 
 Anything else you'd like us to know:
 
-
+Two system calls that I added are:
+priority() - sets the priority of the process
+share() - sets the share of the process
+Neither do anything unless the scheduling algorithm is correctly set.
 
 Extra credit exercises:

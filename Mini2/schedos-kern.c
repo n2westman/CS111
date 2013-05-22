@@ -236,7 +236,7 @@ schedule(void)
 		while(1) {
 			while((pid = (pid+1)%NPROCS) != current->p_pid) {
 				if (proc_array[pid].p_state == P_RUNNABLE &&
-					proc_array[pid].p_priority == priority)
+					proc_array[pid].p_priority <= priority)
 				{
 					run(&proc_array[pid]);
 				}
