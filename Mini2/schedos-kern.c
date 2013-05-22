@@ -97,7 +97,7 @@ start(void)
 		special_registers_init(proc);
 
 		// Initialize priority
-		proc_array[i].p_priority = NPROCS - i;
+		proc_array[i].p_priority = i%2;
 
 		// Initialize share
 		proc_array[i].p_times_run = 0;
@@ -235,7 +235,7 @@ schedule(void)
 	else if(scheduling_algorithm == 2)
 		while(1) {
 			pid = (pid + 1) % NPROCS;
-			
+			priority = NPROCS;
 			int i;
 			for(i = 0; i < NPROCS; i++) {
 				if (proc_array[i].p_state == P_RUNNABLE &&
@@ -243,11 +243,11 @@ schedule(void)
 					priority = proc_array[i].p_priority;
 			
 			}
-			if (proc_array[i].p_state == P_RUNNABLE &&
-				proc_array[i].p_priority == priority)
+			if (proc_array[pid].p_state == P_RUNNABLE &&
+				proc_array[pid].p_priority == priority)
+			{
 				run(&proc_array[pid]);
-			//We have NPROCS unique priorities
-
+			}
 		}
 		
 	else if(scheduling_algorithm == 3)

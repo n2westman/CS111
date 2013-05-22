@@ -21,8 +21,8 @@
 0010009c T priority
 001000a9 T share
 001000bd T schedule
-001001e2 T interrupt
-00100262 T start
+001001ee T interrupt
+0010026e T start
 0010037c T segments_init
 00100477 T interrupt_controller_init
 00100500 T console_clear

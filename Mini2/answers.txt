@@ -43,8 +43,7 @@ Exercise 4:
 
 Did you complete Exercise 4A, Exercise 4B, or both for extra credit?
 
-Both, 4B is more complete. 4A works, there's currently a minor bug where it will "step down" priorities, meaning that if the priority is inverse to the thread number, it will sequentially step down to the next highest priority, rather than the highest priority possible.
-
+I completed both. Extra credit, yay!
 
 Exercise 5:
 
