@@ -24,10 +24,10 @@ typedef enum procstate {
 typedef struct process {
 	pid_t p_pid;			// Process ID
 
-	uint32_t p_priority;
+	uint32_t p_priority; //Set by a system call!
 	
-	uint32_t p_share;
-	uint32_t p_times_run;	
+	uint32_t p_share; //Set by a system call!
+	uint32_t p_times_run;	//Never touched by the user
 	
 	registers_t p_registers;	// Current process state: registers,
 					// stack location, EIP, etc.

@@ -49,6 +49,16 @@ process_t *current;
 // The preferred scheduling algorithm.
 int scheduling_algorithm;
 
+void priority(int p)
+{
+	current->p_priority = p;
+}
+
+void share(int s)
+{
+	current->p_times_run = 0;
+	current->p_share	 = s;
+}
 
 /*****************************************************************************
  * start
@@ -89,7 +99,8 @@ start(void)
 		// Initialize the process descriptor
 		special_registers_init(proc);
 
-		proc_array[i].p_times_run = proc_array[i].p_share = NPROCS - i;
+		proc_array[i].p_times_run = 0;
+		proc_array[i].p_share = i%2;
 		
 		// Set ESP
 		proc->p_registers.reg_esp = stack_ptr;
@@ -158,11 +169,11 @@ interrupt(registers_t *reg)
 	case INT_SYS_USER1:
 		// 'sys_user*' are provided for your convenience, in case you
 		// want to add a system call.
-		/* Your code here (if you want). */
+		priority(reg->reg_eax);
 		run(current);
 
 	case INT_SYS_USER2:
-		/* Your code here (if you want). */
+		share(reg->reg_eax);
 		run(current);
 
 	case INT_CLOCK:
@@ -240,7 +251,7 @@ schedule(void)
 	else if(scheduling_algorithm == 3)
 		while(1) {
 			if( proc_array[pid].p_state == P_RUNNABLE &&
-				proc_array[pid].p_times_run == proc_array[pid].p_share)
+				proc_array[pid].p_times_run >= proc_array[pid].p_share)
 				proc_array[pid].p_times_run = 0;
 			
 			else if( proc_array[pid].p_state == P_RUNNABLE &&
