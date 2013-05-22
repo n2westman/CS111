@@ -89,7 +89,7 @@ start(void)
 		// Initialize the process descriptor
 		special_registers_init(proc);
 
-		proc_array[i].p_times_run = proc_array[i].p_share = 2;
+		proc_array[i].p_times_run = proc_array[i].p_share = NPROCS - i;
 		
 		// Set ESP
 		proc->p_registers.reg_esp = stack_ptr;
@@ -106,7 +106,7 @@ start(void)
 	cursorpos = (uint16_t *) 0xB8000;
 
 	// Initialize the scheduling algorithm.
-	scheduling_algorithm = 2;
+	scheduling_algorithm = 3;
 
 	// Switch to the first process.
 	run(&proc_array[1]);
@@ -243,11 +243,11 @@ schedule(void)
 				proc_array[pid].p_times_run == proc_array[pid].p_share)
 				proc_array[pid].p_times_run = 0;
 			
-			if( proc_array[pid].p_state == P_RUNNABLE &&
+			else if( proc_array[pid].p_state == P_RUNNABLE &&
 				proc_array[pid].p_times_run < proc_array[pid].p_share)
 			{
 				proc_array[pid].p_times_run++;
-				run(&proc_array[pid])
+				run(&proc_array[pid]);
 			}
 			pid = (pid + 1) % NPROCS;
 		}
