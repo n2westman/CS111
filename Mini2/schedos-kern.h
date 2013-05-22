@@ -26,6 +26,9 @@ typedef struct process {
 
 	uint32_t p_priority;
 	
+	uint32_t p_share;
+	uint32_t p_times_run;	
+	
 	registers_t p_registers;	// Current process state: registers,
 					// stack location, EIP, etc.
 					// 'registers_t' defined in x86.h
