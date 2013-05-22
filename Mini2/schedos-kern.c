@@ -215,20 +215,19 @@ schedule(void)
 				if (proc_array[pid].p_state == P_RUNNABLE)
 				{
 					run(&proc_array[pid]);
-					break;
 				}
 			}
 		}
 		
 	else if(scheduling_algorithm == 2)
 		while(1) {
-			while((++pid%NPROCS) != current->pid)
-			{
+			while((pid = (pid+1)%NPROCS) != current->pid)
 				if (proc_array[pid].p_state == P_RUNNABLE &&
 					proc_array[pid].p_priority == priority)
 				{
 					run(&proc_array[pid]);
 				}
+				
 			}
 			//We have NPROCS unique priorities
 			priority = (priority + 1) % NPROCS;
