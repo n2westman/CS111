@@ -234,19 +234,21 @@ schedule(void)
 		
 	else if(scheduling_algorithm == 2)
 		while(1) {
-			while((pid = (pid+1)%NPROCS) != current->p_pid) {
-				if (proc_array[pid].p_state == P_RUNNABLE &&
-					proc_array[pid].p_priority <= priority)
+			int i;
+			for(i = 1; i < NPROCS; i++)
+			{
+				if (proc_array[i].p_state == P_RUNNABLE &&
+					proc_array[i].p_priority <= priority)
 				{
-					run(&proc_array[pid]);
+					pid = i;
 				}
-				
 			}
+			
 	
-			if(proc_array[pid].p_state == P_RUNNABLE)
+			if(proc_array[pid].p_state == P_RUNNABLE) //So we don't get trapped
 				run(&proc_array[pid]);
 			//We have NPROCS unique priorities
-			priority = (priority + 1) % NPROCS;
+			pid = (pid + 1) % NPROCS;
 		}
 		
 	else if(scheduling_algorithm == 3)
