@@ -234,13 +234,14 @@ schedule(void)
 		
 	else if(scheduling_algorithm == 2)
 		while(1) {
-			int i;
-			for(i = 1; i < NPROCS; i++)
+			int i = pid;
+			while((i = (i+1)%NPROCS) != current->pid)
 			{
 				if (proc_array[i].p_state == P_RUNNABLE &&
 					proc_array[i].p_priority <= priority)
 				{
 					pid = i;
+					priority = proc_array[pid].p_priority;
 				}
 			}
 			
