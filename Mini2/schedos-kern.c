@@ -83,9 +83,6 @@ start(void)
 	for (i = 0; i < NPROCS; i++) {
 		proc_array[i].p_pid = i;
 		proc_array[i].p_state = P_EMPTY;
-	
-		// Initialize priority
-		proc_array[i].p_priority = NPROCS - i;
 	}
 	
 	//The two loops differ upon instantiation, the second loop never looks at i == 0
@@ -99,8 +96,12 @@ start(void)
 		// Initialize the process descriptor
 		special_registers_init(proc);
 
+		// Initialize priority
+		proc_array[i].p_priority = NPROCS - i;
+
+		// Initialize share
 		proc_array[i].p_times_run = 0;
-		proc_array[i].p_share = i%2;
+		proc_array[i].p_share = i%2 + 1;
 		
 		// Set ESP
 		proc->p_registers.reg_esp = stack_ptr;
@@ -117,7 +118,7 @@ start(void)
 	cursorpos = (uint16_t *) 0xB8000;
 
 	// Initialize the scheduling algorithm.
-	scheduling_algorithm = 3;
+	scheduling_algorithm = 2;
 
 	// Switch to the first process.
 	run(&proc_array[1]);
