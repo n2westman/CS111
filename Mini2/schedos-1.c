@@ -22,12 +22,10 @@ void
 start(void)
 {
 	int i;
-	uint32_t cursor;
 	
 	for (i = 0; i < RUNCOUNT; i++) {
 		// Write characters to the console, yielding after each one.
-		cursor = fetch_and_add(cursorpos, 1);
-		*cursor = PRINTCHAR;
+		*cursorpos++ = PRINTCHAR;
 		sys_yield();
 	}
 
