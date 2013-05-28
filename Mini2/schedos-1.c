@@ -18,6 +18,15 @@
 #define PRINTCHAR	('1' | 0x0C00)
 #endif
 
+static inline void
+print(uint16_t toPrint)
+{
+	asm volatile("int %0\n"
+			: : "i" (INT_SYS_PRINTCHAR),
+		            "a" (toPrint)
+			: "cc", "memory");
+}
+
 void
 start(void)
 {
@@ -25,10 +34,10 @@ start(void)
 	
 	for (i = 0; i < RUNCOUNT; i++) {
 		// Write characters to the console, yielding after each one.
-		*cursorpos++ = PRINTCHAR;
+		print((uint16_t)PRINTCHAR);
 		sys_yield();
 	}
 
-	// Yield forever.
+	// Exit
 	sys_exit(0);
 }

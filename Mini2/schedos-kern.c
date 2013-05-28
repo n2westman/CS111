@@ -183,6 +183,10 @@ interrupt(registers_t *reg)
 		// Switch to the next runnable process.
 		schedule();
 
+	case INT_SYS_PRINTCHAR:
+		*cursorpos++ = (uint16_t) reg->reg_eax; //Where we stored it
+		run(current);
+
 	default:
 		while (1)
 			/* do nothing */;
