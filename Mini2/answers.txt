@@ -53,6 +53,7 @@ tl;dr It happens in process 4 on its 5th iteration.
 
 (Exercise 6 is a coding exercise)
 
+Used a system interrupt to make the call atomic.
 
 Anything else you'd like us to know:
 
