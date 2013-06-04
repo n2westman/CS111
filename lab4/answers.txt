@@ -17,19 +17,34 @@ Name: Nickolas Westman
 Student ID: 903996152
 Email: nickolas@upe.seas.ucla.edu
 
-# Partner 2 (if you're working in a team)
+# Partner 2 
 Name: Alex Sanciangco
-Student ID: 
+Student ID: 704050064
 Email: a.sanciangco@gmail.com
 
 # EXERCISE 1: What method you used to make your peer download and upload
 #    files in parallel?  (~1-3 sentences)
 
+We used a fork. The child process executes the download or upload, which happen in no particular order.
+We didn't run into any performance problems, but a DoS attack on the network is easily possible because we don't cap the number of simultaneous downloads and uploads.
+
 # EXERCISE 2A: What conditions did you find and fix that would have
 #    triggered a buffer overrun bug?  (~1-3 sentences each)
 
+On the upload:
+Snscanf - tries to copy up to t->tail, may create a problem when we pass in a number greater than 256.
+	Fix: Put an if statement before the call. If it's greater than MAXFILESIZ, exit with an error.
+
+On the download:
+Strcpy -- Good old strcpy problems on the download
+	Fix: Switch to strncpy, taking in the FILENAMESIZ as the third parameter.
+
 # EXERCISE 2B: What other robustness problems did you fix?  (~1-3 sentences
 #    each)
+
+Changing directories: If we find a '/' using strchr, we throw an error and exit.
+Download rate: If it's too damn small, we cut off the connection, jumping to try_again.
+Resource Consumption: If we try to write a file that's bigger than my arbitrary 1 GB Limit, it will stop.
 
 # EXERCISE 3: Describe the attacks you implemented for "evil mode".  Why
 #    are they attacks?  (~3-10 sentences each)

@@ -37,6 +37,9 @@ static int listen_port;
 
 #define TASKBUFSIZ	4096	// Size of task_t::buf
 #define FILENAMESIZ	256	// Size of task_t::filename
+#define MAXFILESIZ 1000000000 // ~1 GB max file size
+#define SAMPLESIZ 8 //Sample size for xfer rate
+#define MINRATE 128
 
 typedef enum tasktype {		// Which type of connection is this?
 	TASK_TRACKER,		// => Tracker connection
@@ -476,8 +479,9 @@ task_t *start_download(task_t *tracker_task, const char *filename)
 		error("* Error while allocating task");
 		goto exit;
 	}
-	strcpy(t->filename, filename);
-
+	strncpy(t->filename, filename, FILENAMESIZ-1); //Buffer Overruns
+	t->filename[FILENAMESIZ-1] = '\0';
+	
 	// add peers
 	s1 = tracker_task->buf;
 	while ((s2 = memchr(s1, '\n', (tracker_task->buf + messagepos) - s1))) {
@@ -502,7 +506,7 @@ task_t *start_download(task_t *tracker_task, const char *filename)
 //	until a download is successful.
 static void task_download(task_t *t, task_t *tracker_task)
 {
-	int i, ret = -1;
+	int i, ret = -1, rate = 0, count = 0;
 	assert((!t || t->type == TASK_DOWNLOAD)
 	       && tracker_task->type == TASK_TRACKER);
 
@@ -569,7 +573,25 @@ static void task_download(task_t *t, task_t *tracker_task)
 			error("* Disk write error");
 			goto try_again;
 		}
+		//Added: Part 2
+		if(t->total_written > MAXFILESIZ)
+		{
+			error("File too big, please try again");
+			goto try_again;
+		}
+		rate = t->total_written / count;
+		if(countt >= SAMPLESIZ && rate < MINRATE)
+		{
+			error("Writing in too small of chunks, rate is slow");
+			goto try_again;
+		}
+		
+		count++;
 	}
+	
+	
+	
+	
 
 	// Empty files are usually a symptom of some error.
 	if (t->total_written > 0) {
@@ -643,12 +665,24 @@ static void task_upload(task_t *t)
 	}
 
 	assert(t->head == 0);
+	
+	if(t->tail >= FILENAMESIZ)
+	{
+		error("File Name Too Long");
+		goto exit;
+	}
 	if (osp2p_snscanf(t->buf, t->tail, "GET %s OSP2P\n", t->filename) < 0) {
 		error("* Odd request %.*s\n", t->tail, t->buf);
 		goto exit;
 	}
 	t->head = t->tail = 0;
 
+	if(strchr(t->filename, '/') != 0)
+	{
+		error("Filename Error: %s refers to a directory\n", t->filename);
+		goto exit;
+	}
+	
 	t->disk_fd = open(t->filename, O_RDONLY);
 	if (t->disk_fd == -1) {
 		error("* Cannot open file %s", t->filename);
