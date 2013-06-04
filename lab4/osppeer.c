@@ -580,7 +580,7 @@ static void task_download(task_t *t, task_t *tracker_task)
 			goto try_again;
 		}
 		rate = t->total_written / count;
-		if(countt >= SAMPLESIZ && rate < MINRATE)
+		if(count >= SAMPLESIZ && rate < MINRATE)
 		{
 			error("Writing in too small of chunks, rate is slow");
 			goto try_again;
