@@ -1,0 +1,56 @@
+NICK ONLY - RECURSIVE IMPLEMENTATION OF PARSE
+ALEX ONLY - ITERATIVE IMPLEMENTATION OF PARSE
+
+NICK WESTMAN 903996152
+ALEX SANCIANGCO 704050064
+
+Nick's Notes.
+
+Tues, 8:08 PM
+
+I've basically got the lexer done. It passes the 40 test cases and with a little dummy parser, it easily passes test-p-bad.sh. Just waiting on Alex to finish his parser implementation, he said that he had basically designed an algorithm. It's really disconcerting that he hasn't compiled or tested his code incrementally at all. Looks like my work is done.
+
+Weds, 2:31 PM
+
+It's stressing me out that Alex still doesn't have the parser working. I have faith in him for now, but I'm gonna start writting a backup in case it's not working after dinner time.
+
+Weds, 7:34 PM
+
+Alex's code looks really unstable. I don't really know what's going on, but it looks like there's a lot of places it can fail. I want to trust that it works, but I'm gonna start working on my own little recursive parser as a plan B.
+
+Weds, 11:04 PM
+
+Alex says his parser is working, are we done?
+
+Thurday, 0:34 AM
+
+Memory leaks abound. We're gonna have to try a different implementation.
+
+Thursday, 3:18 AM.
+
+It's almost there.
+
+I'm pretty much just having trouble with pointer allocation. There's significant"leakiness" surrounding these pointers. I really don't know what to do about it.
+
+Pipes don't work, there's weird emergent behavior going on between different sections. I don't know. I'm going to work on it in the morning. Goodnight
+
+Thursday, 11:44 AM
+
+Got some food, rested, took a shower. New Idea: add a bool in the token and forget about messy pointer reallocation.
+
+Thursday, 3:07 PM
+
+Well it pretty much works, the only problem is that it's right-associatve. I'm going to make a dist and turn it in. If alex gets a better copy working, we'll turn it in. The best I'm going to do right now. I've fallen too far behind in school this week to keep going on this project.
+
+Thursday 10:05 PM (ALEX SANCIANGCO)
+
+I went back to an old implementation of the code that we almost had working before. The cut_list function now properly sets the command_stream_t's token to the token immediately after the next newline (remember, this functionality only makes since after the tokens have gone through the lexer). From there the parse function properly creates a tree in the appropriate format for print_command's traversal algorithm. Becasue of the functionality of cut_list, every time read_command is called on a stream, the head node of THE NEXT command tree will be given and the command_stream_t's token pointer will be looking at the next command. 
+
+Saturday 4/20 1:58AM
+
+Attempting to reimplementing lexer to fix errors, for some reason the char_stream_current(cst) == '&' isn't worrking, nor is any other literal comparison like that... i'm not sure why...
+
+NOTES FROM ALEX:
+
+Well I didn't really keep good notes in this file... Much work had to be redone on the parser but is now much more memory effecient. We ended up going back to the iterative method rather than the recursive method; it was easier to debug that way. Also, parts of the lexer have been fixed to handle incorrect (syntactically) inputs. Despite all the hardship and annoyances, it works!
+
