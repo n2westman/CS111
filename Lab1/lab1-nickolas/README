@@ -4,6 +4,13 @@ ALEX ONLY - ITERATIVE IMPLEMENTATION OF PARSE
 NICK WESTMAN 903996152
 ALEX SANCIANGCO 704050064
 
+This project runs shell scripts using a subset of posix grammar - as they should be run.
+Explores the basic notions of forking and executing processes, as well as learning about parsing a script.
+Moves forward with simple locking mechanisms and posix threads as the shell tries to agressively paralellize the code.
+When it can, it will run the code in parallel.
+
+Working Notes -- Bear with us.
+
 Nick's Notes.
 
 Tues, 8:08 PM
